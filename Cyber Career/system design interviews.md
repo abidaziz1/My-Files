@@ -3907,7 +3907,7 @@ Proving intent (malicious vs mistake)
 - Legal/HR coordination process
 - Handling false positives
 
----
+```
 ## 🔐 **CATEGORY 7: ADVANCED SECURITY SYSTEMS (continued)**
 
 ### **Q38. Design Supply Chain Security Platform**
@@ -3955,7 +3955,7 @@ Architecture:
 │ Verification │ ← Check signatures, SBOM
 │ & Deployment │
 └──────────────┘
-
+```
 Dependency Management:
 
 Private Registry/Proxy:
@@ -4154,7 +4154,7 @@ Challenges:
 - False positives (legitimate new packages)
 - Reproducible builds (hard to achieve)
 - Legacy systems (can't easily change)
-```
+
 
 **Expected Depth:**
 - SLSA levels explained
@@ -4209,7 +4209,7 @@ Architecture:
 ┌──────▼───────┐
 │  Reporting   │ ← Gaps, improvements
 └──────────────┘
-
+```
 Attack Scenarios:
 
 Network Attacks:
@@ -4413,7 +4413,7 @@ Best Practices:
 - Safety mechanisms in detail
 - Metrics for measuring effectiveness
 
----
+```
 
 ### **Q40. Design Security Operations Center (SOC) Platform**
 
@@ -4462,7 +4462,7 @@ Architecture:
 ┌────────────▼─────────────────────┐
 │      Metrics & Reporting         │
 └──────────────────────────────────┘
-
+```
 Alert Management:
 
 Alert Volume Problem:
