@@ -1073,3 +1073,273 @@ My specific contribution:
 - [ ] Sketch 5 secure system designs
 - [ ] Practice explaining trade-offs
 
+**Week 8: More Coding + Labs**
+- [ ] 15-20 LeetCode Medium problems
+- [ ] More cloud labs (Kubernetes security, container escapes)
+- [ ] Red Team labs (if Red Team focus)
+
+### **Weeks 9-11: Interview Simulation**
+
+**Week 9: Mock Technical Screens**
+- [ ] 3-5 mock technical interviews
+- [ ] Practice explaining security concepts
+- [ ] Get feedback from security engineers
+
+**Resources:**
+- interviewing.io (paid, security engineers available)
+- Pramp (free peer practice)
+- Security friends/colleagues
+
+**Week 10: Mock System Design**
+- [ ] 3-5 mock system design interviews
+- [ ] Practice whiteboarding
+- [ ] Time yourself (60 min limit)
+- [ ] Record and review
+
+**Week 11: Mock Behavioral**
+- [ ] Prepare 10-15 STAR stories
+- [ ] Practice with friend/mentor
+- [ ] Record yourself (audio/video)
+- [ ] Refine based on feedback
+
+### **Week 12: Company Research & Final Prep**
+
+**Company-specific research:**
+- [ ] Read security blog posts from target companies
+- [ ] Understand their tech stack
+- [ ] Research recent security initiatives
+- [ ] Connect with employees on LinkedIn
+
+**Final review:**
+- [ ] Review fundamentals
+- [ ] Practice 5-10 more coding problems
+- [ ] Do 1-2 full mock interviews
+- [ ] Rest before interview day
+
+---
+
+## 🔧 **ESSENTIAL TOOLS & SKILLS CHECKLIST**
+
+### **Must-Have Technical Skills:**
+
+**Programming:**
+- [ ] Python (advanced) - scripting, automation, tool building
+- [ ] Go (intermediate) - performance tools
+- [ ] Bash (intermediate) - quick automation
+- [ ] SQL (intermediate) - log queries
+
+**Cloud Platforms:**
+- [ ] AWS (advanced if targeting AWS roles)
+- [ ] Understanding of Azure/GCP (basic)
+- [ ] IaC (Terraform, CloudFormation)
+
+**Security Tools:**
+
+**Offensive:**
+- [ ] Nmap, Masscan (network scanning)
+- [ ] Burp Suite (web testing)
+- [ ] Metasploit, Cobalt Strike (exploitation frameworks - know them)
+- [ ] Bloodhound, Mimikatz (AD exploitation)
+- [ ] Impacket (network protocol tools)
+
+**Defensive:**
+- [ ] Splunk/ELK (SIEM)
+- [ ] Suricata/Snort (IDS)
+- [ ] Osquery (endpoint visibility)
+- [ ] Prowler/ScoutSuite (cloud security scanning)
+
+**Container/K8s:**
+- [ ] Docker security basics
+- [ ] Kubernetes security
+- [ ] Trivy, Clair (image scanning)
+- [ ] Falco (runtime security)
+
+**Development:**
+- [ ] Git (version control)
+- [ ] CI/CD concepts
+- [ ] API security
+- [ ] Secrets management
+
+---
+
+## 💡 **INTERVIEW DAY TACTICS**
+
+### **Before the Interview:**
+
+**24 hours before:**
+- [ ] Review your project stories
+- [ ] Review company security blog
+- [ ] Prepare questions for interviewers
+- [ ] Set up your environment (quiet space, stable internet)
+- [ ] Test video/audio equipment
+
+**2 hours before:**
+- [ ] Light technical review (skim notes)
+- [ ] Don't cram new material
+- [ ] Eat something
+- [ ] Use bathroom
+- [ ] Set up water nearby
+
+**30 minutes before:**
+- [ ] Close unnecessary apps
+- [ ] Have notebook + pen ready
+- [ ] Breathe deeply
+- [ ] Positive mindset
+
+### **During the Interview:**
+
+**Universal tactics:**
+
+1. **Listen completely** before responding
+2. **Ask clarifying questions** (shows thoughtfulness)
+3. **Think out loud** (they can't read your mind)
+4. **Admit when you don't know** something ("I don't know X, but here's how I'd find out...")
+5. **Be collaborative** (it's not you vs interviewer)
+6. **Watch for hints** (interviewers often guide you)
+7. **Manage your time** (don't get stuck on one part)
+8. **Check in periodically** ("Am I on the right track?")
+
+**For coding rounds:**
+- Start with brute force, optimize later
+- Test with examples as you code
+- Handle edge cases explicitly
+- Discuss time/space complexity
+
+**For system design:**
+- Start with requirements/constraints
+- Draw diagrams with clear boundaries
+- Think about failure modes
+- Discuss trade-offs (no perfect solutions)
+
+**For behavioral:**
+- Use STAR method (Situation, Task, Action, Result)
+- Be honest (they can tell when you're lying)
+- Show learning/growth mindset
+- Quantify impact when possible
+
+### **Red Flags to Avoid:**
+
+- ❌ Badmouthing previous employers
+- ❌ Arrogance or overconfidence
+- ❌ Getting defensive when challenged
+- ❌ Arguing with interviewer
+- ❌ Being completely silent while thinking
+- ❌ Giving up too easily
+- ❌ Not asking any questions at the end
+
+### **Questions to Ask Interviewers:**
+
+**Good questions:**
+- "What does a typical on-call rotation look like?"
+- "How does the security team collaborate with product teams?"
+- "What's the biggest security challenge the team is facing?"
+- "How do you measure security success here?"
+- "What does growth look like for someone in this role?"
+- "Can you tell me about a recent security project the team worked on?"
+
+**Avoid:**
+- Questions about compensation (save for recruiter)
+- Questions easily answered by Google
+- Only asking about perks/benefits
+- Not asking anything (shows disinterest)
+
+---
+
+## 🎓 **POST-INTERVIEW**
+
+### **After Each Round:**
+
+**Within 30 minutes:**
+- [ ] Write down what was asked
+- [ ] Note what you did well
+- [ ] Identify what you could improve
+- [ ] Send thank-you email (if appropriate)
+
+**That evening:**
+- [ ] Review any topics you struggled with
+- [ ] Practice those areas
+- [ ] Prepare for next rounds
+
+### **After Full Onsite:**
+
+**Within 24 hours:**
+- [ ] Send thank-you emails to interviewers
+- [ ] Reflect on overall performance
+- [ ] Note any promised follow-ups
+
+**While waiting:**
+- [ ] Continue practicing (don't stop)
+- [ ] Keep interviewing elsewhere
+- [ ] Don't obsess over outcome
+
+### **If You Get the Offer:**
+
+- [ ] Ask for offer details in writing
+- [ ] Negotiate (always negotiate)
+- [ ] Consider total compensation, not just base salary
+- [ ] Ask about team, role, growth opportunity
+- [ ] Take time to decide (don't rush)
+
+### **If You Don't Get the Offer:**
+
+- [ ] Ask for feedback (politely)
+- [ ] Identify gaps in your performance
+- [ ] Create improvement plan
+- [ ] Practice those specific areas
+- [ ] Apply lessons to next interview
+
+**Remember:** Rejection is normal. Many successful security engineers failed multiple interviews before succeeding.
+
+---
+
+## 📊 **SUCCESS METRICS**
+
+**You're ready when:**
+
+- [ ] You can explain security concepts to a non-technical person
+- [ ] You can code a working solution to medium problems in 30-40 min
+- [ ] You can design a secure system and defend your choices
+- [ ] You have 10+ STAR stories prepared
+- [ ] You can threat model a system in real-time
+- [ ] You know your resume inside and out
+- [ ] You can calmly handle pressure
+- [ ] You have hands-on experience to reference
+
+**Reality check:** You don't need to be perfect. You need to be "hireable" - showing potential, learning ability, and cultural fit matter as much as raw knowledge.
+
+---
+
+## 🚀 **FINAL THOUGHTS**
+
+**What actually gets you hired:**
+
+1. **Technical competence** (you can do the job)
+2. **Communication skills** (you can work with teams)
+3. **Problem-solving mindset** (you can handle unknowns)
+4. **Learning agility** (you can grow)
+5. **Cultural fit** (you match the team's values)
+
+**Big Tech security is about:**
+- Building secure systems, not just breaking them
+- Enabling teams, not blocking them
+- Collaborating, not dictating
+- Continuous learning, not resting on certifications
+
+**Your competitive advantage:**
+- Real production security experience > CTF trophies
+- Tools you've built > tools you've used
+- Clear communication > technical jargon
+- Humility + confidence > arrogance
+- Learning from failures > pretending perfection
+
+---
+
+**This map is based on:**
+- Real interview experiences at FAANG companies
+- Conversations with Big Tech security engineers
+- Hiring committee insights
+- Current industry practices
+
+**Remember:** Interviews are imperfect. Sometimes great candidates don't pass, and that's okay. Keep learning, keep building, keep improving. Your goal is to be undeniably hireable, not perfect.
+
+**Good luck! 🔐**
