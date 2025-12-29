@@ -667,7 +667,7 @@ if __name__ == "__main__":
     handler.register_callback(scanner.process_packet)
     
     # Create channel hopper with dual-band support
-    hopper = ChannelHopper(interface, hop_interval=1.0)
+    hopper = ChannelHopper(interface, hop_interval=1.5)
     
     # Register channel change callback to update scanner
     def on_channel_change(channel: int):
