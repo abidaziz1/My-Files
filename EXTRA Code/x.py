@@ -675,24 +675,25 @@ if __name__ == "__main__":
     
     hopper.register_callback(on_channel_change)
     hopper.start()
-    
-    print("Scanning for 30 seconds with DUAL-BAND detection...")
+
+    SCAN_DURATION = 90
+    print("Scanning for {SCAN_DURATION} seconds with DUAL-BAND detection...")
     print("Features: 2.4GHz + 5GHz, Vendor ID, WPS detection, Client tracking, Smart RSSI\n")
     
     try:
         # Start capture
         import threading
         capture_thread = threading.Thread(
-            target=lambda: handler.start_capture(timeout=30),
+            target=lambda: handler.start_capture(timeout=SCAN_DURATION),
             daemon=True
         )
         capture_thread.start()
         
         # Progress display
-        for i in range(30):
+        for i in range(SCAN_DURATION):
             time.sleep(1)
             stats = scanner.get_statistics()
-            print(f"\r[{i+1:2d}/30] APs: {stats['total_aps']:2d} "
+            print(f"\r[{i+1:2d}/{SCAN_DURATION}] APs: {stats['total_aps']:2d} "
                   f"(2.4GHz: {stats['aps_24ghz']:2d} | 5GHz: {stats['aps_5ghz']:2d}) | "
                   f"Clients: {stats['total_clients']:2d} ({stats['connected_clients']:2d} connected) | "
                   f"WPS: {stats['wps_aps']:2d} | "
