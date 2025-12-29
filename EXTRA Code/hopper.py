@@ -269,7 +269,10 @@ class ChannelHopper:
                     break
                 
                 self.set_channel(channel)
-                time.sleep(self.hop_interval)
+                if channel >= 36:
+                    time.sleep(self.hop_interval*2)
+                else:
+                    time.sleep(self.hop_interval)
         
         logger.info("Channel hopping stopped")
     
