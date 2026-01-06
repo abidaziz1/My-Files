@@ -1,0 +1,485 @@
+Step 1: Load the Dataset (Corrected Path)
+pythonimport pandas as pd
+
+# Correct path - note the underscores!
+df = pd.read_csv(
+    "/data/sms_spam_collection/SMSSpamCollection",
+    sep="\t",
+    header=None,
+    names=["label", "message"]
+)
+
+print("✅ Dataset loaded successfully!")
+
+# Display basic information
+print("\n" + "=" * 50)
+print("FIRST FEW ROWS:")
+print("=" * 50)
+print(df.head())
+
+print("\n" + "=" * 50)
+print("DATASET INFO:")
+print("=" * 50)
+print(df.info())
+
+print("\n" + "=" * 50)
+print("LABEL DISTRIBUTION:")
+print("=" * 50)
+print(df['label'].value_counts())
+
+✅ Dataset loaded successfully!
+  label                                            message
+0   ham  Go until jurong point, crazy.. Available only ...
+1   ham                      Ok lar... Joking wif u oni...
+2  spam  Free entry in 2 a wkly comp to win FA Cup fina...
+3   ham  U dun say so early hor... U c already then say...
+4   ham  Nah I don't think he goes to usf, he lives aro...
+
+FIRST FEW ROWS:
+==================================================
+  label                                            message
+0   ham  Go until jurong point, crazy.. Available only ...
+1   ham                      Ok lar... Joking wif u oni...
+2  spam  Free entry in 2 a wkly comp to win FA Cup fina...
+3   ham  U dun say so early hor... U c already then say...
+4   ham  Nah I don't think he goes to usf, he lives aro...
+
+==================================================
+DATASET INFO:
+==================================================
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 5572 entries, 0 to 5571
+Data columns (total 2 columns):
+ #   Column   Non-Null Count  Dtype 
+---  ------   --------------  ----- 
+ 0   label    5572 non-null   object
+ 1   message  5572 non-null   object
+dtypes: object(2)
+memory usage: 87.2+ KB
+None
+
+
+
+Step 2: Clean the Data
+python# Check for missing values
+print("\n" + "=" * 50)
+print("DATA QUALITY CHECK:")
+print("=" * 50)
+print(f"Missing values:\n{df.isnull().sum()}")
+
+# Check for duplicates
+duplicates = df.duplicated().sum()
+print(f"\nDuplicate entries: {duplicates}")
+
+# Remove duplicates if any
+if duplicates > 0:
+    df = df.drop_duplicates()
+    print(f"✅ Removed {duplicates} duplicates")
+    print(f"Dataset now has {len(df)} messages")
+else:
+    print("✅ No duplicates found")
+
+==================================================
+DATA QUALITY CHECK:
+==================================================
+Missing values:
+label      0
+message    0
+dtype: int64
+
+Duplicate entries: 403
+✅ Removed 403 duplicates
+Dataset now has 5169 messages
+
+
+Step 3: Text Preprocessing
+pythonimport nltk
+import re
+from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
+# Download required NLTK data
+print("Downloading NLTK resources...")
+nltk.download("punkt", quiet=True)
+nltk.download("punkt_tab", quiet=True)
+nltk.download("stopwords", quiet=True)
+print("✅ NLTK resources ready")
+
+print("\n" + "=" * 50)
+print("ORIGINAL TEXT (BEFORE PREPROCESSING):")
+print("=" * 50)
+print(df['message'].head(3))
+
+Downloading NLTK resources...
+
+[nltk_data] Error loading punkt: <urlopen error [Errno -3] Temporary
+[nltk_data]     failure in name resolution>
+[nltk_data] Error loading punkt_tab: <urlopen error [Errno -3]
+[nltk_data]     Temporary failure in name resolution>
+
+✅ NLTK resources ready
+
+==================================================
+ORIGINAL TEXT (BEFORE PREPROCESSING):
+==================================================
+0    Go until jurong point, crazy.. Available only ...
+1                        Ok lar... Joking wif u oni...
+2    Free entry in 2 a wkly comp to win FA Cup fina...
+Name: message, dtype: object
+
+[nltk_data] Error loading stopwords: <urlopen error [Errno -3]
+[nltk_data]     Temporary failure in name resolution>
+
+
+Step 4: Apply Preprocessing Steps
+python# Step 4a: Lowercase
+df["message"] = df["message"].str.lower()
+print("\n" + "=" * 50)
+print("AFTER LOWERCASING:")
+print("=" * 50)
+print(df['message'].head(3))
+
+# Step 4b: Remove punctuation (keep $ and !)
+df["message"] = df["message"].apply(lambda x: re.sub(r"[^a-z\s$!]", "", x))
+print("\n" + "=" * 50)
+print("AFTER REMOVING PUNCTUATION:")
+print("=" * 50)
+print(df['message'].head(3))
+
+# Step 4c: Tokenization
+df["message"] = df["message"].apply(word_tokenize)
+print("\n" + "=" * 50)
+print("AFTER TOKENIZATION:")
+print("=" * 50)
+print(df['message'].head(3))
+
+# Step 4d: Remove stop words
+stop_words = set(stopwords.words("english"))
+df["message"] = df["message"].apply(
+    lambda x: [word for word in x if word not in stop_words]
+)
+print("\n" + "=" * 50)
+print("AFTER REMOVING STOP WORDS:")
+print("=" * 50)
+print(df['message'].head(3))
+
+# Step 4e: Stemming
+stemmer = PorterStemmer()
+df["message"] = df["message"].apply(
+    lambda x: [stemmer.stem(word) for word in x]
+)
+print("\n" + "=" * 50)
+print("AFTER STEMMING:")
+print("=" * 50)
+print(df['message'].head(3))
+
+# Step 4f: Rejoin tokens
+df["message"] = df["message"].apply(lambda x: " ".join(x))
+print("\n" + "=" * 50)
+print("FINAL PREPROCESSED TEXT:")
+print("=" * 50)
+print(df['message'].head(5))
+
+print("\n✅ Text preprocessing complete!")
+
+
+==================================================
+AFTER LOWERCASING:
+==================================================
+0    go until jurong point, crazy.. available only ...
+1                        ok lar... joking wif u oni...
+2    free entry in 2 a wkly comp to win fa cup fina...
+Name: message, dtype: object
+
+==================================================
+AFTER REMOVING PUNCTUATION:
+==================================================
+0    go until jurong point crazy available only in ...
+1                              ok lar joking wif u oni
+2    free entry in  a wkly comp to win fa cup final...
+Name: message, dtype: object
+
+==================================================
+AFTER TOKENIZATION:
+==================================================
+0    [go, until, jurong, point, crazy, available, o...
+1                       [ok, lar, joking, wif, u, oni]
+2    [free, entry, in, a, wkly, comp, to, win, fa, ...
+Name: message, dtype: object
+
+==================================================
+AFTER REMOVING STOP WORDS:
+==================================================
+0    [go, jurong, point, crazy, available, bugis, n...
+1                       [ok, lar, joking, wif, u, oni]
+2    [free, entry, wkly, comp, win, fa, cup, final,...
+Name: message, dtype: object
+
+==================================================
+AFTER STEMMING:
+==================================================
+0    [go, jurong, point, crazi, avail, bugi, n, gre...
+1                         [ok, lar, joke, wif, u, oni]
+2    [free, entri, wkli, comp, win, fa, cup, final,...
+Name: message, dtype: object
+
+==================================================
+FINAL PREPROCESSED TEXT:
+==================================================
+0    go jurong point crazi avail bugi n great world...
+1                                ok lar joke wif u oni
+2    free entri wkli comp win fa cup final tkt st m...
+3                  u dun say earli hor u c alreadi say
+4            nah dont think goe usf live around though
+Name: message, dtype: object
+
+✅ Text preprocessing complete!
+
+
+
+
+Step 5: Feature Extraction
+pythonfrom sklearn.feature_extraction.text import CountVectorizer
+
+# Create vectorizer
+vectorizer = CountVectorizer(
+    min_df=1,           # Word must appear at least once
+    max_df=0.9,         # Exclude words in >90% of messages
+    ngram_range=(1, 2)  # Include unigrams and bigrams
+)
+
+# Convert text to numerical features
+X = vectorizer.fit_transform(df["message"])
+
+# Convert labels to binary (0=ham, 1=spam)
+y = df["label"].apply(lambda x: 1 if x == "spam" else 0)
+
+print("=" * 50)
+print("FEATURE EXTRACTION COMPLETE:")
+print("=" * 50)
+print(f"Feature matrix shape: {X.shape}")
+print(f"Number of messages: {X.shape[0]}")
+print(f"Number of features (words/phrases): {X.shape[1]}")
+print(f"\nLabel distribution:")
+print(f"  Spam (1): {y.sum()}")
+print(f"  Ham (0): {len(y) - y.sum()}")
+
+
+==================================================
+FEATURE EXTRACTION COMPLETE:
+==================================================
+Feature matrix shape: (5169, 37069)
+Number of messages: 5169
+Number of features (words/phrases): 37069
+
+Label distribution:
+  Spam (1): 653
+  Ham (0): 4516
+
+
+Step 6: Train the Model
+pythonfrom sklearn.model_selection import GridSearchCV
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import Pipeline
+
+# Create pipeline
+pipeline = Pipeline([
+    ("vectorizer", vectorizer),
+    ("classifier", MultinomialNB())
+])
+
+# Define hyperparameter grid
+param_grid = {
+    "classifier__alpha": [0.01, 0.1, 0.15, 0.2, 0.25, 0.5, 0.75, 1.0]
+}
+
+# Grid search with cross-validation
+print("=" * 50)
+print("TRAINING MODEL...")
+print("=" * 50)
+print("This may take 1-2 minutes. Please wait...")
+
+grid_search = GridSearchCV(
+    pipeline,
+    param_grid,
+    cv=5,              # 5-fold cross-validation
+    scoring="f1",      # Optimize F1-score
+    verbose=1
+)
+
+# Train the model
+grid_search.fit(df["message"], y)
+
+# Get best model
+best_model = grid_search.best_estimator_
+
+print("\n" + "=" * 50)
+print("TRAINING COMPLETE!")
+print("=" * 50)
+print(f"Best alpha parameter: {grid_search.best_params_['classifier__alpha']}")
+print(f"Best F1-score (cross-validation): {grid_search.best_score_:.4f}")
+
+==================================================
+TRAINING MODEL...
+==================================================
+This may take 1-2 minutes. Please wait...
+Fitting 5 folds for each of 8 candidates, totalling 40 fits
+
+==================================================
+TRAINING COMPLETE!
+==================================================
+Best alpha parameter: 0.25
+Best F1-score (cross-validation): 0.9284
+
+
+Step 7: Test the Model
+python# Test messages
+new_messages = [
+    "Congratulations! You've won a $1000 Walmart gift card. Go to http://bit.ly/1234 to claim now.",
+    "Hey, are we still meeting up for lunch today?",
+    "Urgent! Your account has been compromised. Verify your details here: www.fakebank.com/verify",
+    "Reminder: Your appointment is scheduled for tomorrow at 10am.",
+    "FREE entry in a weekly competition to win an iPad. Just text WIN to 80085 now!",
+]
+
+# Preprocessing function
+def preprocess_message(message):
+    message = message.lower()
+    message = re.sub(r"[^a-z\s$!]", "", message)
+    tokens = word_tokenize(message)
+    tokens = [word for word in tokens if word not in stop_words]
+    tokens = [stemmer.stem(word) for word in tokens]
+    return " ".join(tokens)
+
+# Preprocess and predict
+processed_messages = [preprocess_message(msg) for msg in new_messages]
+predictions = best_model.predict(processed_messages)
+probabilities = best_model.predict_proba(processed_messages)
+
+# Display results
+print("\n" + "=" * 80)
+print("MODEL PREDICTIONS ON TEST MESSAGES:")
+print("=" * 80)
+
+for i, msg in enumerate(new_messages):
+    pred_label = "🚨 SPAM" if predictions[i] == 1 else "✅ HAM"
+    spam_prob = probabilities[i][1]
+    ham_prob = probabilities[i][0]
+    
+    print(f"\nMessage {i+1}:")
+    print(f"  Text: {msg[:70]}...")
+    print(f"  Prediction: {pred_label}")
+    print(f"  Spam Probability: {spam_prob:.2%}")
+    print(f"  Ham Probability: {ham_prob:.2%}")
+    print("-" * 80)
+
+
+================================================================================
+MODEL PREDICTIONS ON TEST MESSAGES:
+================================================================================
+
+Message 1:
+  Text: Congratulations! You've won a $1000 Walmart gift card. Go to http://bi...
+  Prediction: 🚨 SPAM
+  Spam Probability: 99.99%
+  Ham Probability: 0.01%
+--------------------------------------------------------------------------------
+
+Message 2:
+  Text: Hey, are we still meeting up for lunch today?...
+  Prediction: ✅ HAM
+  Spam Probability: 0.00%
+  Ham Probability: 100.00%
+--------------------------------------------------------------------------------
+
+Message 3:
+  Text: Urgent! Your account has been compromised. Verify your details here: w...
+  Prediction: 🚨 SPAM
+  Spam Probability: 96.11%
+  Ham Probability: 3.89%
+--------------------------------------------------------------------------------
+
+Message 4:
+  Text: Reminder: Your appointment is scheduled for tomorrow at 10am....
+  Prediction: ✅ HAM
+  Spam Probability: 0.15%
+  Ham Probability: 99.85%
+--------------------------------------------------------------------------------
+
+Message 5:
+  Text: FREE entry in a weekly competition to win an iPad. Just text WIN to 80...
+  Prediction: 🚨 SPAM
+  Spam Probability: 100.00%
+  Ham Probability: 0.00%
+--------------------------------------------------------------------------------
+
+
+
+Step 8: Save the Model
+pythonimport joblib
+
+# Save the trained model
+model_filename = 'spam_detection_model.joblib'
+joblib.dump(best_model, model_filename)
+
+print("=" * 50)
+print(f"✅ Model saved to: {model_filename}")
+print("=" * 50)
+
+
+==================================================
+✅ Model saved to: spam_detection_model.joblib
+==================================================
+
+Step 9: Submit for Evaluation
+pythonimport requests
+import json
+
+# Submit model to evaluation API
+url = "http://localhost:8000/api/upload"
+model_file_path = "spam_detection_model.joblib"
+
+print("=" * 50)
+print("SUBMITTING MODEL FOR EVALUATION...")
+print("=" * 50)
+
+try:
+    with open(model_file_path, "rb") as model_file:
+        files = {"model": model_file}
+        response = requests.post(url, files=files)
+    
+    # Parse and display result
+    result = response.json()
+    print("\n" + json.dumps(result, indent=4))
+    
+    # Extract flag if present
+    if "flag" in result:
+        print("\n" + "=" * 50)
+        print("🎉 SUCCESS! YOUR FLAG:")
+        print("=" * 50)
+        print(result['flag'])
+        print("=" * 50)
+    else:
+        print("\n⚠️ No flag returned. Check the response above for details.")
+        
+except Exception as e:
+    print(f"\n❌ Error during submission: {e}")
+    print("Make sure the evaluation server is running on localhost:8000")
+
+
+
+==================================================
+SUBMITTING MODEL FOR EVALUATION...
+==================================================
+
+{
+    "accuracy": 0.9130434782608695,
+    "flag": "HTB{sp4m_cla55if13r_3v4lu4t0r}"
+}
+
+==================================================
+🎉 SUCCESS! YOUR FLAG:
+==================================================
+HTB{sp4m_cla55if13r_3v4lu4t0r}
+==================================================
