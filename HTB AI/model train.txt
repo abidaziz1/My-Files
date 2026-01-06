@@ -1,0 +1,189 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import torch
+
+print("NumPy version:", np.__version__)
+print("Pandas version:", pd.__version__)
+print("PyTorch version:", torch.__version__)
+print("✅ All packages loaded successfully!")
+
+NumPy version: 2.0.2
+Pandas version: 2.2.3
+PyTorch version: 2.5.1.post103
+✅ All packages loaded successfully!
+
+
+# Load the dataset
+data = pd.read_csv("demo_dataset.csv")
+
+# Display the first few rows
+print(data.head())
+
+
+   log_id       source_ip destination_port protocol bytes_transferred  \
+0      10      10.0.0.100      STRING_PORT      FTP              4096   
+1      12  172.16.254.100              110     POP3          NEGATIVE   
+2      27  172.16.254.200              110     POP3       NON_NUMERIC   
+3       1   192.168.1.100               80     HTTP              1024   
+4       2    192.168.1.81               53      TLS              9765   
+
+  threat_level  
+0            ?  
+1            1  
+2            1  
+3            0  
+4            0  
+
+# Get a summary of column data types and non-null counts
+print(data.info())
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 100 entries, 0 to 99
+Data columns (total 6 columns):
+ #   Column             Non-Null Count  Dtype 
+---  ------             --------------  ----- 
+ 0   log_id             100 non-null    int64 
+ 1   source_ip          99 non-null     object
+ 2   destination_port   99 non-null     object
+ 3   protocol           100 non-null    object
+ 4   bytes_transferred  100 non-null    object
+ 5   threat_level       100 non-null    object
+dtypes: int64(1), object(5)
+memory usage: 4.8+ KB
+None
+
+
+# Identify columns with missing values
+print(data.isnull().sum())
+
+log_id               0
+source_ip            1
+destination_port     1
+protocol             0
+bytes_transferred    0
+threat_level         0
+dtype: int64
+
+import re
+
+def is_valid_ip(ip):
+    pattern = re.compile(r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$')
+    return bool(pattern.match(str(ip)))
+
+# Check for invalid IP addresses
+invalid_ips = data[~data['source_ip'].astype(str).apply(is_valid_ip)]
+print(f"Invalid IPs found: {len(invalid_ips)}")
+print(invalid_ips.head())
+
+Invalid IPs found: 15
+    log_id      source_ip destination_port protocol bytes_transferred  \
+40      41     10.0.0.300               25     SMTP              4096   
+51      52   10.10.10.450      STRING_PORT      FTP              4096   
+55      56            NaN               53      DNS              1024   
+57      58  192.168.1.475              NaN      UDP              2048   
+63      64     MISSING_IP               53      DNS              1024   
+
+   threat_level  
+40            0  
+51            ?  
+55            0  
+57            1  
+63            0 
+
+
+def is_valid_port(port):
+    try:
+        port = int(port)
+        return 0 <= port <= 65535
+    except ValueError:
+        return False
+
+# Check for invalid port numbers
+invalid_ports = data[~data['destination_port'].apply(is_valid_port)]
+print(f"Invalid ports found: {len(invalid_ports)}")
+print(invalid_ports.head())
+
+Invalid ports found: 8
+    log_id      source_ip destination_port protocol bytes_transferred  \
+0       10     10.0.0.100      STRING_PORT      FTP              4096   
+34      35  192.168.1.200      STRING_PORT      FTP              4096   
+51      52   10.10.10.450      STRING_PORT      FTP              4096   
+57      58  192.168.1.475              NaN      UDP              2048   
+65      66  192.168.1.600      UNUSED_PORT      UDP              2048   
+
+   threat_level  
+0             ?  
+34            ?  
+51            ?  
+57            1  
+65            1 
+
+
+valid_protocols = ['TCP', 'TLS', 'SSH', 'POP3', 'DNS', 'HTTPS', 'SMTP', 'FTP', 'UDP', 'HTTP']
+
+# Check for invalid protocol values
+invalid_protocols = data[~data['protocol'].isin(valid_protocols)]
+print(f"Invalid protocols found: {len(invalid_protocols)}")
+print(invalid_protocols.head())
+
+Invalid protocols found: 2
+    log_id      source_ip destination_port protocol bytes_transferred  \
+30      31  192.168.1.119              443  UNKNOWN              9513   
+80      81  192.168.1.224               25  UNKNOWN              1161   
+
+   threat_level  
+30            2  
+80            1  
+
+
+def is_valid_bytes(bytes_val):
+    try:
+        bytes_val = int(bytes_val)
+        return bytes_val >= 0
+    except ValueError:
+        return False
+
+# Check for invalid bytes transferred
+invalid_bytes = data[~data['bytes_transferred'].apply(is_valid_bytes)]
+print(f"Invalid bytes found: {len(invalid_bytes)}")
+print(invalid_bytes.head())
+
+
+Invalid bytes found: 3
+    log_id       source_ip destination_port protocol bytes_transferred  \
+1       12  172.16.254.100              110     POP3          NEGATIVE   
+2       27  172.16.254.200              110     POP3       NON_NUMERIC   
+93      94  192.168.1.1050               53      DNS       NON_NUMERIC   
+
+   threat_level  
+1             1  
+2             1  
+93            0  
+
+
+def is_valid_threat_level(threat_level):
+    try:
+        threat_level = int(threat_level)
+        return 0 <= threat_level <= 2
+    except ValueError:
+        return False
+
+# Check for invalid threat levels
+invalid_threat_levels = data[~data['threat_level'].apply(is_valid_threat_level)]
+print(f"Invalid threat levels found: {len(invalid_threat_levels)}")
+print(invalid_threat_levels.head())
+
+
+Invalid threat levels found: 4
+    log_id      source_ip destination_port protocol bytes_transferred  \
+0       10     10.0.0.100      STRING_PORT      FTP              4096   
+34      35  192.168.1.200      STRING_PORT      FTP              4096   
+51      52   10.10.10.450      STRING_PORT      FTP              4096   
+67      68    10.10.10.77      STRING_PORT      FTP              4096   
+
+   threat_level  
+0             ?  
+34            ?  
+51            ?  
+67            ?  
